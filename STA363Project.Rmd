@@ -1,0 +1,21 @@
+---
+title: "STA363_extra_project"
+author: "Cindy Chen"
+date: "2020/4/12"
+output: html_document
+---
+
+```{r load-packages, message = FALSE, warning = FALSE}
+library(tidyverse) 
+library(tidymodels)
+heart <- read_csv("framingham.csv")
+```
+
+```{r}
+head(heart)
+```
+```{r}
+boxplot(heartRate~TenYearCHD,data=heart, main="boxplot",
+   xlab="ifCHD", ylab="HeartRate")
+```
+
