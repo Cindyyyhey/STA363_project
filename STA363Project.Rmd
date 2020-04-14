@@ -6,16 +6,98 @@ output: html_document
 ---
 
 ```{r load-packages, message = FALSE, warning = FALSE}
-library(tidyverse) 
+#library(caret)
 library(tidymodels)
+library(tidyverse)
+library(ISLR)
+library(rpart.plot)
+#library(dummies)
 heart <- read_csv("framingham.csv")
+#insurance <- read_csv("insurance.csv")
 ```
 
-```{r}
+```{r dataset}
 head(heart)
 ```
-```{r}
+```{r EDA}
 boxplot(heartRate~TenYearCHD,data=heart, main="boxplot",
    xlab="ifCHD", ylab="HeartRate")
+boxplot(cigsPerDay~TenYearCHD,data=heart, main="boxplot",
+   xlab="ifCHD", ylab="cig")
+boxplot(education~TenYearCHD,data=heart, main="boxplot",
+   xlab="ifCHD", ylab="edu")
+boxplot(age~TenYearCHD,data=heart, main="boxplot",
+   xlab="ifCHD", ylab="age")
+boxplot(BMI~TenYearCHD,data=heart, main="boxplot",
+   xlab="ifCHD", ylab="BMI")
 ```
+
+```{r setEngine}
+glm_spec <- 
+  logistic_reg() %>% # Pick logistic regression
+  set_engine(engine = "glm") # set engine
+
+#It fails
+
+#fit(glm_spec,
+#    TenYearCHD ~ .,
+#    data = heart)
+```
+```{r glmFit}
+glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
+  tidy()
+glm(TenYearCHD ~ BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
+  tidy()
+```
+Use confusion matrix to visualize the logistic regression.
+
+Then, I try to use decision tree to improve my prediction.
+```{r 1}
+heart_split <- initial_split(heart, prop = 0.5)
+heart_train <- training(heart_split)
+heart_cv <- vfold_cv(heart_train, v = 5)
+
+model_spec <- decision_tree(
+  mode = "classification",
+  cost_complexity = tune(),
+  tree_depth = 10
+) %>%
+  set_engine("rpart")
+```
+
+```{r 2}
+grid <- expand_grid(cost_complexity = seq(0, 0.1, by = .01))
+model <- tune_grid(
+  model_spec,
+  TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate,
+  grid = grid,
+  resamples = heart_cv,
+  metrics = metric_set(gain_capture, accuracy))
+```
+
+```{r 3}
+# best <- model %>%
+#   select_best(metric = "gain_capture") %>%
+#   pull()
+# 
+# final_spec <- decision_tree(
+#   cost_complexity = best, 
+#   tree_depth = 30,
+#   mode = "classification") %>% 
+#   set_engine("rpart")
+# final_model <- fit(final_spec,
+#     TenYearCHD = as.factor(TenYearCHD),              
+#     TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate,
+#     data = heart)
+# 
+# 
+# 
+# heart_test <- testing(heart_split)
+# final_model %>%
+#   predict(new_data = heart_test) %>%
+#   bind_cols(heart_test) %>%
+#   conf_mat(truth = HD, estimate = .pred_class) %>%
+#   autoplot(type = "heatmap")
+```
+
 
