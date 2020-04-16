@@ -18,6 +18,8 @@ heart <- read_csv("framingham.csv")
 
 ```{r dataset}
 head(heart)
+heart <- heart %>%
+  mutate(TenYearCHD = factor(TenYearCHD))
 ```
 Do some eda here.
 ```{r EDA}
@@ -38,17 +40,17 @@ glm_spec <-
   logistic_reg() %>% # Pick logistic regression
   set_engine(engine = "glm") # set engine
 
-#It fails
 
-#fit(glm_spec,
-#    TenYearCHD ~ .,
-#    data = heart)
+
+fit(glm_spec,
+   TenYearCHD ~ .,
+   data = heart)
 ```
 here
 ```{r glmFit}
-# model = glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
-#   tidy()
-# 
+model = glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
+  tidy()
+
 # fitted.values <- predict(model,heart,type='response')
 # fitted.results <- ifelse(fitted.results > 0.5,1,0)
 # misClasificError <- mean(fitted.results != heart$TenYearCHD)

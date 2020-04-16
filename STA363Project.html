@@ -390,6 +390,8 @@ heart &lt;- read_csv(&quot;framingham.csv&quot;)
 ## # … with 9 more variables: prevalentHyp &lt;dbl&gt;, diabetes &lt;dbl&gt;, totChol &lt;dbl&gt;,
 ## #   sysBP &lt;dbl&gt;, diaBP &lt;dbl&gt;, BMI &lt;dbl&gt;, heartRate &lt;dbl&gt;, glucose &lt;dbl&gt;,
 ## #   TenYearCHD &lt;dbl&gt;</code></pre>
+<pre class="r"><code>heart &lt;- heart %&gt;%
+  mutate(TenYearCHD = factor(TenYearCHD))</code></pre>
 <p>Do some eda here.</p>
 <pre class="r"><code>boxplot(heartRate~TenYearCHD,data=heart, main=&quot;boxplot&quot;,
    xlab=&quot;ifCHD&quot;, ylab=&quot;HeartRate&quot;)</code></pre>
@@ -410,15 +412,35 @@ heart &lt;- read_csv(&quot;framingham.csv&quot;)
   logistic_reg() %&gt;% # Pick logistic regression
   set_engine(engine = &quot;glm&quot;) # set engine
 
-#It fails
 
-#fit(glm_spec,
-#    TenYearCHD ~ .,
-#    data = heart)</code></pre>
+
+fit(glm_spec,
+   TenYearCHD ~ .,
+   data = heart)</code></pre>
+<pre><code>## parsnip model object
+## 
+## Fit time:  20ms 
+## 
+## Call:  stats::glm(formula = formula, family = stats::binomial, data = data)
+## 
+## Coefficients:
+##     (Intercept)             male              age        education  
+##       -8.322206         0.555098         0.063453        -0.047497  
+##   currentSmoker       cigsPerDay           BPMeds  prevalentStroke  
+##        0.070875         0.017929         0.162255         0.693502  
+##    prevalentHyp         diabetes          totChol            sysBP  
+##        0.234638         0.039461         0.002324         0.015398  
+##           diaBP              BMI        heartRate          glucose  
+##       -0.004132         0.006603        -0.003250         0.007124  
+## 
+## Degrees of Freedom: 3655 Total (i.e. Null);  3640 Residual
+##   (582 observations deleted due to missingness)
+## Null Deviance:       3121 
+## Residual Deviance: 2754  AIC: 2786</code></pre>
 <p>here</p>
-<pre class="r"><code># model = glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = &quot;binomial&quot;) %&gt;%
-#   tidy()
-# 
+<pre class="r"><code>model = glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = &quot;binomial&quot;) %&gt;%
+  tidy()
+
 # fitted.values &lt;- predict(model,heart,type='response')
 # fitted.results &lt;- ifelse(fitted.results &gt; 0.5,1,0)
 # misClasificError &lt;- mean(fitted.results != heart$TenYearCHD)
@@ -442,12 +464,6 @@ model &lt;- tune_grid(
   grid = grid,
   resamples = heart_cv,
   metrics = metric_set(gain_capture, accuracy))</code></pre>
-<pre><code>## x Fold1: internal: Error: $ operator is invalid for atomic vectors</code></pre>
-<pre><code>## x Fold2: internal: Error: $ operator is invalid for atomic vectors</code></pre>
-<pre><code>## x Fold3: internal: Error: $ operator is invalid for atomic vectors</code></pre>
-<pre><code>## x Fold4: internal: Error: $ operator is invalid for atomic vectors</code></pre>
-<pre><code>## x Fold5: internal: Error: $ operator is invalid for atomic vectors</code></pre>
-<pre><code>## Warning: All models failed in tune_grid(). See the `.notes` column.</code></pre>
 <pre class="r"><code># best &lt;- model %&gt;%
 #   select_best(metric = &quot;gain_capture&quot;) %&gt;%
 #   pull()
