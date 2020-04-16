@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r load-packages, message = FALSE, warning = FALSE}
-#library(caret)
+library(caret)
 library(tidymodels)
 library(tidyverse)
 library(ISLR)
@@ -19,6 +19,7 @@ heart <- read_csv("framingham.csv")
 ```{r dataset}
 head(heart)
 ```
+Do some eda here.
 ```{r EDA}
 boxplot(heartRate~TenYearCHD,data=heart, main="boxplot",
    xlab="ifCHD", ylab="HeartRate")
@@ -43,11 +44,16 @@ glm_spec <-
 #    TenYearCHD ~ .,
 #    data = heart)
 ```
+here
 ```{r glmFit}
-glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
-  tidy()
-glm(TenYearCHD ~ BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
-  tidy()
+# model = glm(TenYearCHD ~ education+BMI+age+cigsPerDay+heartRate, data = heart, family = "binomial") %>%
+#   tidy()
+# 
+# fitted.values <- predict(model,heart,type='response')
+# fitted.results <- ifelse(fitted.results > 0.5,1,0)
+# misClasificError <- mean(fitted.results != heart$TenYearCHD)
+# print(paste('Accuracy',1-misClasificError))
+
 ```
 Use confusion matrix to visualize the logistic regression.
 
